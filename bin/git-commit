@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+# git-commit. Script for speeding up writing commit msg's.
+# Adds branch name to beginning of commit message if on any branch other than master.
+
+# Options:
+# -i for appending issue fix to msg
+
+branch = `git rev-parse --abbrev-ref HEAD`.gsub("\n",'')
+skip, commit_msg, cc = ""
+
+if ARGV[0] == '-i'
+  ARGV.shift
+  skip = " (fixes HubSpot/PaaS#)"
+end
+
+if ARGV[0] == '-c'
+  ARGV.shift
+  cc = "  /cc HubSpot/PaaS#)"
+
+branch = (branch == "master") ? "" : "[#{branch}] "
+commit_msg = "#{branch}#{ARGV.join('')}#{skip}#{cc}"
+
+command = "git commit -m \"#{commit_msg}\"" 
+
+puts command
+exec command
